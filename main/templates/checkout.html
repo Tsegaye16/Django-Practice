@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <!-- Main Start -->
+    <main>
+		<!-- Services -->
+		<section class="container my-4">
+			<h1 class="text-center mb-4 section-heading border-bottom pb-2">Checkout</h1>
+				<table class="table table-bordered">
+					<thead class="table-warning">
+						<tr>
+							<th>Plan</th>
+							<th>Plan Detail</th>
+							<th>Payment For</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<table class="table-bordered table">
+									<tr>
+										<th>Name</th>
+										<td>{{plan.title}}</td>
+									</tr>
+									<tr>
+										<th>Price</th>
+										<td>{{plan.price}} birr</td>
+									</tr>
+									<tr>
+										<th>Max Member</th>
+										<td>{{plan.max_member}}</td>
+									</tr>
+									<tr>
+										<th>Already Registered</th>
+										<td>15</td>
+									</tr>
+									<tr>
+										<th>Balance Seats</th>
+										<td>15</td>
+									</tr>
+								</table>
+							</td>
+							<td>
+								<ul class="list-unstyled">
+                                    {% for feature in plan.subplanfeature_set.all %}
+                                    <li>{{feature.title}}</li>
+                                    
+                                    {% endfor %}
+					            </ul>
+							</td>
+							<td>
+                                
+								<table class="table table-bordered">
+                                    
+                                    <tr>
+										<td></td>
+										<th><label for="validity1">Duration</label></th>
+										<td><label for="validity1"><b>Discount</b> </label></td>
+									</tr>
+                                   
+                                    {% for discount in plan.plandiscount_set.all %}
+                                    
+                                    <tr>
+										<td><input data-planprice="{{plan.price}}" data-discount=
+                                            "{{discount.total_discount}}" type="radio" id="validity{{discount.id}}" name="validity" class="
+                                            select-validity" value="{{discount.total_months}}" /></td>
+										<th><label for="validity{{discount.id}}">{{discount.total_months}} month</label></th>
+										<td>{{discount.total_discount}}%</td>
+									</tr>
+                                    
+                                   
+                                    {% endfor %}
+                                    
+									
+									
+								</table>
+							</td>
+						</tr>
+					</tbody>
+					<tfoot class="table-info">
+						
+						
+                        <tr>
+                            <td></td>
+                            <th>Original price</th>
+                            <td><b><span class="originalPrice">{{plan.price}} birr</span></b></td>
+                        </tr>
+                        <tr>
+							<td></td>
+							<th>total discount</th>
+							<td><b><span class="totalDiscount">0 birr</span></b></td>
+                            
+						</tr>
+                        <tr>
+							<td></td>
+							<th>your payment</th>
+							<td><b><span class="totalAmount">{{plan.price}} birr</span></b></td>
+                            
+						</tr>
+                        
+						<tr>
+							<td colspan="2"></td>
+							<td>
+								<form method="post" action="{% url 'checkout_session' plan.id %}">
+									{% csrf_token %}
+								<input type="submit" value="Proceed to Payment" class="btn btn-primary" />
+							</form>
+							</td>
+						</tr>
+					</tfoot>
+				</table>
+		</section>
+		<!-- End -->
+    </main>
+    <!-- End -->
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $(".select-validity").on('click',function(){
+                var _planPrice=$(this).attr('data-planprice');
+                var _planValid=$(this).val();
+                var _planDisc=$(this).attr('data-discount');
+                var _totalPrice=_planPrice*_planValid;
+                if(_planDisc>0){
+                    var _calDisc=_totalPrice*_planDisc/100;
+                    _calDisc = _totalPrice - _calDisc;
+                }
+                else{
+                    _calDisc=_planPrice;
+                }
+                $(".totalAmount").text(_calDisc+" birr");
+                $(".originalPrice").text(_totalPrice+" birr");
+                $(".totalDiscount").text(_calDisc=_totalPrice*_planDisc/100+" birr")
+                
+                
+                
+            });
+        });
+    </script>
+    {% endblock %}
+

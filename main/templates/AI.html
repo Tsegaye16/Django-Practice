@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<main>
+    <div class="container">
+        <h1 class="mt-5">Face Recognition AI</h1>
+
+        <form action="{% url 'capture_face_photos' %}" method="post" class="mt-4">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="label" class="form-label">Enter the label for the face:</label>
+                <input type="text" id="label" name="label" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="num_photos" class="form-label">Enter the number of photos to capture:</label>
+                <input type="number" id="num_photos" name="num_photos" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Dataset</button>
+        </form>
+    {% if msg %}
+      <div id="message" class="alert alert-success" role="alert">{{ msg }}</div>
+    {% endif %}
+
+        <form action="{% url 'identify_user' %}" method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Identify User</button>
+        </form>
+    </div>
+
+    
+</main>
+<script>
+$(document).ready(function() {
+    // Hide the success message after 10 seconds
+    setTimeout(function() {
+      $("#message").fadeOut();
+    }, 10000); // 10 seconds in milliseconds
+  });
+  
+</script>
+{% endblock %}

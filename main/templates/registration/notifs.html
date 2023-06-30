@@ -1,0 +1,93 @@
+<html>
+<head>
+    <!-- Add any necessary CSS and JS imports -->
+</head>
+<body>
+    {% extends 'base.html' %}
+    {% block content %}
+    <style>
+        .marked {
+            display: none;
+        }
+    </style>
+    <main>
+        <!-- Services -->
+        <section class="container my-4">
+            <div class="row">
+                <div class="col-3">
+                    {% include 'user/left-sidebar.html' %}
+                </div>
+                <div class="col-9">
+                    <h2 class="mb-4 border-bottom pb-1">Notifications <span class="badge bg-primary totalunread">123</span></h2>
+                    <span class="ajaxRes"></span>
+                    <ul class="list-group notif-list">
+                        Loading.........
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".ajaxRes").hide();
+            setInterval(function () {
+
+
+                $.ajax({
+                    url: "{% url 'get_notifs' %}",
+                    dataType: 'json',
+                    beforeSend: function () {
+                        $(".ajaxRes").show();
+                        $(".ajaxRes").text('Loading...');
+                    },
+                    success: function (res) {
+                        var _json = (res.data);
+                        var _html = '';
+                        $(".totalunread").text(res.totalUnread)
+                        $.each(res.data, function (index, d) {
+                            if(d.notifStatus==true){
+                                _html += '<li class="list-group-item list' + d.pk + ' ">' + d.notify_detail + ' <button data-index="' + d.pk + '" data-notif="' + d.pk + '" class="btn btn-sm btn-secondary float-end markreadbtn markreadbtn'+d.pk+' "" style="display:none;">Mark read</button><button class=" float-end btn btn-success btn-sm marked' + d.pk + '"><i class="bi bi-check-square"></i></button></li>';
+
+                            }else{
+                                _html += '<li class="list-group-item bg-light list' + d.pk + ' ">' + d.notify_detail + ' <button data-index="' + d.pk + '" data-notif="' + d.pk + '" class="btn btn-sm btn-secondary float-end markreadbtn markreadbtn'+d.pk+'" ">Mark read</button><button class=" float-end btn btn-success btn-sm marked marked' + d.pk + '"><i class="bi bi-check-square"></i></button></li>';
+                            }
+                            
+                        });
+                        $(".notif-list").html(_html);
+                        $(".ajaxRes").hide();
+                    }
+                });
+            }, 9000);
+            //mark as read jquery method start
+            $(document).on("click", ".markreadbtn", function () {
+                var _index = $(this).attr('data-index');
+                var _notif = $(this).attr('data-notif');
+
+                $.ajax({
+                    url: "{% url 'mark_read_notif' %}",
+                    data: {
+                        notif: _notif
+                    },
+                    dataType: 'json',
+                    beforeSend: function () {
+
+                    },
+                    success: function (res) {
+                        if (res.bool == true) {
+                            $(".list" + _index).removeClass('bg-light');
+                            $(".markreadbtn" + _index).hide();
+                            $(".marked" + _index).show();
+                        }
+                    }
+                });
+            });
+            //end
+        });
+    </script>
+
+    {% endblock %}
+</body>
+</html>
